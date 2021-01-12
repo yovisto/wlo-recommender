@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Embedding, Dot, Reshape, Dense
-from tensorflow.keras.models import Model
 nltk.download('stopwords')
 from nltk.corpus import stopwords
 import random
@@ -145,7 +144,7 @@ def embedding_model(embedding_size = 20, classification = False):
     
     # Otherwise loss function is mean squared error
     else:
-        model = Model(inputs = [doc, word], outputs = merged)
+        model = tf.keras.modelsModel(inputs = [doc, word], outputs = merged)
         model.compile(optimizer = 'Adam', loss = 'mse')
     
     return model
