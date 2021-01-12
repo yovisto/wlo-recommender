@@ -3,7 +3,6 @@ import os, sys, re, nltk, pickle
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from tensorflow.keras.layers import Input, Embedding, Dot, Reshape, Dense
 nltk.download('stopwords')
 from nltk.corpus import stopwords
 import random
@@ -117,29 +116,29 @@ def embedding_model(embedding_size = 20, classification = False):
        Trained to discern if a word is present in a article"""
     
     # Both inputs are 1-dimensional
-    doc = Input(name = 'doc', shape = [1])
-    word = Input(name = 'word', shape = [1])
+    doc = tf.keras.layers.Input(name = 'doc', shape = [1])
+    word = tf.keras.layers.Input(name = 'word', shape = [1])
     
     # Embedding the doc (shape will be (None, 1, 50))
-    doc_embedding = Embedding(name = 'doc_embedding',
+    doc_embedding = tf.keras.layers.Embedding(name = 'doc_embedding',
                                input_dim = len(X),
                                output_dim = embedding_size)(doc)
     
     # Embedding the word (shape will be (None, 1, 50))
-    word_embedding = Embedding(name = 'word_embedding',
+    word_embedding = tf.keras.layers.Embedding(name = 'word_embedding',
                                input_dim = len(word_index),
                                output_dim = embedding_size)(word)
     
     # Merge the layers with a dot product along the second axis (shape will be (None, 1, 1))
-    merged = Dot(name = 'dot_product', normalize = True, axes = 2)([doc_embedding, word_embedding])
+    merged = tf.keras.layers.Dot(name = 'dot_product', normalize = True, axes = 2)([doc_embedding, word_embedding])
     
     # Reshape to be a single number (shape will be (None, 1))
-    merged = Reshape(target_shape = [1])(merged)
+    merged = tf.keras.layers.Reshape(target_shape = [1])(merged)
 
     # If classifcation, add extra layer and loss function is binary cross entropy
     if classification:
-        merged = Dense(1, activation = 'sigmoid')(merged)
-        model = Model(inputs = [doc, word], outputs = merged)
+        merged = tf.keras.layers.Dense(1, activation = 'sigmoid')(merged)
+        model = tf.keras.models.Model(inputs = [doc, word], outputs = merged)
         model.compile(optimizer = 'Adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
     
     # Otherwise loss function is mean squared error
