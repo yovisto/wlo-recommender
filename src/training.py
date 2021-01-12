@@ -73,16 +73,12 @@ print ("Num of pairs: ",len(pairs))
 pairs_set=set(pairs)
 
 
-def generate_batch(pairs, n_positive = 50, negative_ratio = 1.0, classification = False):
+def generate_batch(pairs, n_positive = 50, negative_ratio = 1.0):
     """Generate batches of samples for training"""
     batch_size = n_positive * (1 + negative_ratio)
     batch = np.zeros((batch_size, 3))
     
-    # Adjust label based on task
-    if classification:
-        neg_label = 0
-    else:
-        neg_label = -1
+    neg_label = -1
     
     # This creates a generator
     while True:
@@ -111,7 +107,7 @@ def generate_batch(pairs, n_positive = 50, negative_ratio = 1.0, classification 
         np.random.shuffle(batch)
         yield {'doc': batch[:, 0], 'word': batch[:, 1]}, batch[:, 2]
 
-def embedding_model(embedding_size = 20, classification = False):
+def embedding_model(embedding_size = 20):
     """Model to embed docs and wikiwords using the functional API.
        Trained to discern if a word is present in a article"""
     
@@ -135,16 +131,8 @@ def embedding_model(embedding_size = 20, classification = False):
     # Reshape to be a single number (shape will be (None, 1))
     merged = tf.keras.layers.Reshape(target_shape = [1])(merged)
 
-    # If classifcation, add extra layer and loss function is binary cross entropy
-    if classification:
-        merged = tf.keras.layers.Dense(1, activation = 'sigmoid')(merged)
-        model = tf.keras.models.Model(inputs = [doc, word], outputs = merged)
-        model.compile(optimizer = 'Adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
-    
-    # Otherwise loss function is mean squared error
-    else:
-        model = tf.keras.models.Model(inputs = [doc, word], outputs = merged)
-        model.compile(optimizer = 'Adam', loss = 'mse')
+    model = tf.keras.models.Model(inputs = [doc, word], outputs = merged)
+    model.compile(optimizer = 'Adam', loss = 'mse')
     
     return model
 
