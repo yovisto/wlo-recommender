@@ -5,8 +5,6 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Embedding, Dot, Reshape, Dense
 from tensorflow.keras.models import Model
-from sklearn import metrics
-from sklearn.model_selection import train_test_split
 nltk.download('stopwords')
 from nltk.corpus import stopwords
 import random
@@ -91,8 +89,8 @@ def generate_batch(pairs, n_positive = 50, negative_ratio = 1.0, classification 
     # This creates a generator
     while True:
         # randomly choose positive examples
-        for idx, (book_id, link_id) in enumerate(random.sample(pairs, n_positive)):
-            batch[idx, :] = (book_id, link_id, 1)
+        for idx, (doc_id, word_id) in enumerate(random.sample(pairs, n_positive)):
+            batch[idx, :] = (doc_id, word_id, 1)
 
         # Increment idx by 1
         idx += 1
@@ -101,14 +99,14 @@ def generate_batch(pairs, n_positive = 50, negative_ratio = 1.0, classification 
         while idx < batch_size:
             
             # random selection
-            random_book = random.randrange(len(X))
-            random_link = random.randrange(len(word_index))
+            random_doc = random.randrange(len(X))
+            random_word = random.randrange(len(word_index))
             
             # Check to make sure this is not a positive example
-            if (random_book, random_link) not in pairs_set:
+            if (random_doc, random_word) not in pairs_set:
                 
                 # Add to batch and increment index
-                batch[idx, :] = (random_book, random_link, neg_label)
+                batch[idx, :] = (random_doc, random_word, neg_label)
                 idx += 1
                 
         # Make sure to shuffle order
@@ -116,25 +114,25 @@ def generate_batch(pairs, n_positive = 50, negative_ratio = 1.0, classification 
         yield {'doc': batch[:, 0], 'word': batch[:, 1]}, batch[:, 2]
 
 def embedding_model(embedding_size = 20, classification = False):
-    """Model to embed books and wikilinks using the functional API.
-       Trained to discern if a link is present in a article"""
+    """Model to embed docs and wikiwords using the functional API.
+       Trained to discern if a word is present in a article"""
     
     # Both inputs are 1-dimensional
-    book = Input(name = 'doc', shape = [1])
-    link = Input(name = 'word', shape = [1])
+    doc = Input(name = 'doc', shape = [1])
+    word = Input(name = 'word', shape = [1])
     
-    # Embedding the book (shape will be (None, 1, 50))
-    book_embedding = Embedding(name = 'doc_embedding',
+    # Embedding the doc (shape will be (None, 1, 50))
+    doc_embedding = Embedding(name = 'doc_embedding',
                                input_dim = len(X),
-                               output_dim = embedding_size)(book)
+                               output_dim = embedding_size)(doc)
     
-    # Embedding the link (shape will be (None, 1, 50))
-    link_embedding = Embedding(name = 'word_embedding',
+    # Embedding the word (shape will be (None, 1, 50))
+    word_embedding = Embedding(name = 'word_embedding',
                                input_dim = len(word_index),
-                               output_dim = embedding_size)(link)
+                               output_dim = embedding_size)(word)
     
     # Merge the layers with a dot product along the second axis (shape will be (None, 1, 1))
-    merged = Dot(name = 'dot_product', normalize = True, axes = 2)([book_embedding, link_embedding])
+    merged = Dot(name = 'dot_product', normalize = True, axes = 2)([doc_embedding, word_embedding])
     
     # Reshape to be a single number (shape will be (None, 1))
     merged = Reshape(target_shape = [1])(merged)
@@ -142,12 +140,12 @@ def embedding_model(embedding_size = 20, classification = False):
     # If classifcation, add extra layer and loss function is binary cross entropy
     if classification:
         merged = Dense(1, activation = 'sigmoid')(merged)
-        model = Model(inputs = [book, link], outputs = merged)
+        model = Model(inputs = [doc, word], outputs = merged)
         model.compile(optimizer = 'Adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
     
     # Otherwise loss function is mean squared error
     else:
-        model = Model(inputs = [book, link], outputs = merged)
+        model = Model(inputs = [doc, word], outputs = merged)
         model.compile(optimizer = 'Adam', loss = 'mse')
     
     return model
