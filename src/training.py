@@ -144,7 +144,7 @@ def embedding_model(embedding_size = 20, classification = False):
     
     # Otherwise loss function is mean squared error
     else:
-        model = tf.keras.modelsModel(inputs = [doc, word], outputs = merged)
+        model = tf.keras.models.Model(inputs = [doc, word], outputs = merged)
         model.compile(optimizer = 'Adam', loss = 'mse')
     
     return model
