@@ -24,7 +24,7 @@ df.columns = ['text', 'id']
 df = df.reset_index(drop=True)
 REPLACE_BY_SPACE_RE = re.compile('[/(){}_\[\]\|@,;]')
 BAD_SYMBOLS_RE = re.compile('[^0-9a-zäöüß ]')
-STOPWORDS = set(stopwords.words('german')).union(set(stopwords.words('english')))
+STOPWORDS = set(stopwords.words('german')).union(set(stopwords.words('english'))).union(set(['https','http','lernen','wwwyoutubecom','video','videos','erklärt','einfach','nachhilfe','bitly','online','ordne','mehr','a','hilfe','amznto','wwwfacebookcom','zahlen','b','schule','kostenlos','c','facebook','klasse','unterricht','finden','de','richtigen','themen','fragen','gibt','studium','richtig','richtige','wissen','onlinenachhilfe','finde','schüler','learn','uni','teil','e','weitere','co','aufgaben','twittercom','bild','verben','einzelnen','wwwinstagramcom','berechnen','youtube','twitter','media','lernvideo','quiz','abitur','schnell','thema','free','zeit','website','angaben','erklärvideo','social','bestandteile','mal','top','findest','tet','beispiel','spaß','immer','urhebern','zwei','beim','viele','lizenzbedingungen','seite','kurze','besser','begriffe','infos','la','bzw','plattform','nachhilfeunterricht','lernhilfe','nachhilfelehrer','wurde','onlinehilfe','wer','onlinelehrer','findet','wwwtutoryde','kürze','ordnen','dokument','onlineunterricht','umsonst','world','us','merkhilfe','bereitstellung','schoolseasy','kanal','kostenlose','instagram','schülernachhilfe']))
 
 def clean_text(text):
     text = text.lower()
@@ -42,8 +42,6 @@ df['text'] = df['text'].str.replace('\d+', '')
 #### TOKENIZE AND CLEAN TEXT
 # The maximum number of words to be used. (most frequent)
 MAX_DICT_SIZE = 10000
-# Max number of words in each text.
-MAX_SEQUENCE_LENGTH = 50
 
 tokenizer = tf.keras.preprocessing.text.Tokenizer(num_words=MAX_DICT_SIZE, filters='!"#$%&()*+,-./:;<=>?@[\]^_`{|}~', lower=True)
 tokenizer.fit_on_texts(df['text'].values)
