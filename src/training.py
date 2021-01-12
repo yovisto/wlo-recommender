@@ -41,7 +41,7 @@ df['text'] = df['text'].str.replace('\d+', '')
 
 #### TOKENIZE AND CLEAN TEXT
 # The maximum number of words to be used. (most frequent)
-MAX_DICT_SIZE = 10000
+MAX_DICT_SIZE = 20000
 
 tokenizer = tf.keras.preprocessing.text.Tokenizer(num_words=MAX_DICT_SIZE, filters='!"#$%&()*+,-./:;<=>?@[\]^_`{|}~', lower=True)
 tokenizer.fit_on_texts(df['text'].values)
