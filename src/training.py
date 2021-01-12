@@ -105,7 +105,7 @@ def generate_batch(pairs, n_positive = 50, negative_ratio = 1.0):
         np.random.shuffle(batch)
         yield {'doc': batch[:, 0], 'word': batch[:, 1]}, batch[:, 2]
 
-def embedding_model(embedding_size = 20):
+def embedding_model(embedding_size = 25):
     """Model to embed docs and wikiwords using the functional API.
        Trained to discern if a word is present in a article"""
     
@@ -143,7 +143,7 @@ all = next(generate_batch(pairs, n_positive = len(pairs), negative_ratio = 1))
 
 ###### DO THE TRAINING
 n_positive = 512
-h = model.fit(x=[all[0]['doc'], all[0]['word']], y=all[1], epochs = 15, steps_per_epoch = len(pairs) // n_positive, verbose = 2)
+h = model.fit(x=[all[0]['doc'], all[0]['word']], y=all[1], epochs = 20, steps_per_epoch = len(pairs) // n_positive, verbose = 2)
 
 model.save(dataFile.replace(".csv","-embed.h5"))
 
