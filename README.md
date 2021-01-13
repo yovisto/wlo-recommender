@@ -37,5 +37,20 @@ sh runTraining.sh
 ```
 sh runPrediction.sh 4d8aa27e-b102-417b-8f52-fe9e57620308
 ```
-The result is a list of document ids relevant to the query document. Only the top ten items are retrieved, in descending order.
+- The result is a list of scores and document ids relevant to the query document. Only the top ten items are retrieved, in descending order.
 
+## Webservice
+
+- To run the recommender tool as a simple REST based webservice, the following script can be used:
+
+```
+sh runService.sh
+```
+
+- The scripts deploys a CherryPy webservice in a docker container listening at `http://localhost:8080/recommend`.
+
+- To retrieve the recommendations, create a POST request and submit a json document with a document id as for example: 
+
+```
+curl -d '{"doc" : "1e6e21fd-e5d6-4046-a532-803708ea130d"}' -H "Content-Type: application/json" -X POST http://0.0.0.0:8080/recommend
+```	
