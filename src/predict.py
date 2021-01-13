@@ -7,19 +7,19 @@ import numpy as np
 
 modelFile = sys.argv[1]
 idFile = sys.argv[2]
-document = [sys.argv[3]]
+document = sys.argv[3]
 
-print ("Predicting: '" + document[0] + "'")
+print ("Predicting: '" + document + "'")
 
 # LOAD MODEL AND LABELS
 model = tf.keras.models.load_model(modelFile)
 ids = np.load(idFile, allow_pickle=True)
 
-if not document[0] in ids.values:
+if not document in ids.values:
 	print ("Cannot find document!")
 	sys.exit(1)
 
-docNum = ids[ids == document[0]].index[0]
+docNum = ids[ids == document].index[0]
 
 doc_layer = model.get_layer('doc_embedding')
 doc_weights = doc_layer.get_weights()[0]
