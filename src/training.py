@@ -137,11 +137,11 @@ model = embedding_model()
 model.summary()
 
 # PREPARE DATA BATCHES
-all = next(generate_batch(pairs, n_positive = len(pairs), negative_ratio = 1))
+gen = generate_batch(pairs, n_positive = len(pairs), negative_ratio = 1)
 
 ###### DO THE TRAINING
 n_positive = 512
-h = model.fit(x=[all[0]['doc'], all[0]['word']], y=all[1], epochs = 20, steps_per_epoch = len(pairs) // n_positive, verbose = 2)
+h = model.fit(gen, epochs = 20, steps_per_epoch = len(pairs) // n_positive, verbose = 2)
 
 model.save(dataFile.replace(".csv","-embed.h5"))
 
