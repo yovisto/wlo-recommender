@@ -1,4 +1,4 @@
-import cherrypy, json, sys
+import cherrypy, json, sys, cherrypy_cors
 
 from predict import Recommender
 
@@ -18,11 +18,12 @@ class WebService(object):
 
 if __name__ == '__main__':
 
-	modelFile = sys.argv[1]
-	idFile = sys.argv[2]
+   modelFile = sys.argv[1]
+   idFile = sys.argv[2]
 
-	r = Recommender(modelFile, idFile)
+   r = Recommender(modelFile, idFile)
 
-	config = {'server.socket_host': '0.0.0.0'}
-	cherrypy.config.update(config)
-	cherrypy.quickstart(WebService())	
+   config = {'server.socket_host': '0.0.0.0', 'cors.expose.on': True}
+   cherrypy_cors.install()
+   cherrypy.config.update(config)
+   cherrypy.quickstart(WebService())	
