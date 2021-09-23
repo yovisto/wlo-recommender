@@ -10,6 +10,31 @@ textkeys = ["cclom:title", "cm:title", "cm:name", "cclom:general_description", "
 kwkeys = ["cclom:general_keyword"]
 csv = open(path.replace('.json','.csv'), 'w')
 
+def valid(json_data):
+    if "ccm:collection_io_reference" in json_data.get("_source", None).get("aspects"):
+        return False
+    # filter collections
+    if json_data.get("_source", None).get("type") != "ccm:io":
+        return False
+
+    # filter archived and other data
+    if json_data.get("_source", None).get("nodeRef").get("storeRef").get("protocol") != "workspace":
+        return False
+
+    if json_data.get("_source", None).get("properties").get("cclom:format") == "application/zip":
+        return False
+
+    if json_data.get("_source", None).get("properties").get("cclom:title") == None:
+        return False
+
+    if json_data.get("_source", None).get("owner") == "WLO-Upload":
+        return False
+
+    if json_data.get("_source", None).get("properties").get("cm:edu_metadataset") != "mds_oeh":
+        return False
+
+    return True
+
 
 def getText(props):
     text = ""
@@ -24,11 +49,12 @@ def getText(props):
     return text.replace('"','')
 
 with open(path) as f:
-    for line in f:        
+    for line in f:
         jline=json.loads(line)
-        id = jline['_source']['nodeRef']['id']
-        props = jline['_source']['properties']                
-        text = getText(props)                        
-        csv.write('"' + text.replace('\n',' ') + '","' + id + '"\n');
-        
+        if valid(jline):
+            id = jline['_source']['nodeRef']['id']
+            props = jline['_source']['properties']                
+            text = getText(props)                        
+            csv.write('"' + text.replace('\n',' ') + '","' + id + '"\n');
+
 csv.close()
